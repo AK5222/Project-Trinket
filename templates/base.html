@@ -1,0 +1,29 @@
+<!--This should include the basic layout of our website design, all other pages will inherit this design.-->
+<!--Currently very simple, needs to be worked on but should get basic stuff working first before design -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title> {% block title %} Default Title {% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--this links the main.css file with html, we can set stuff like margins, fonts etc-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <!--replace document with this, this syntax is Jinga-->
+    <div class="header">
+        <header>Trinket</header>
+    </div>
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <div class="topnav">
+        <a href="/login">Sign In</a>
+        <a href="/account">Account</a>
+        <a href="/list">List Item</a>
+        <a href="/">Home</a>
+    </div>
+    <hr>
+    <div class="body">
+        {% block body %} {% endblock %}
+    </div>
+</body>
+</html>

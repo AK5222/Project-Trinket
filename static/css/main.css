@@ -1,0 +1,45 @@
+/* Will include formatting stuff for website */
+/* All of this is temporary. It needs to be improved at a later date, but feel free to change stuff to make it prettier */
+
+* {
+    box-sizing: 0;
+}
+
+body {
+    margin: 0;
+}
+
+.header {
+    background-color:#003831;
+    text-align:center;
+    padding: 20px;
+    font-size: 250%;
+    color: white;
+}
+
+.topnav {
+    overflow: hidden;
+    background-color: #EFB21E;
+}
+
+.topnav a {
+    float:right;
+    display:block;
+    color:#f2f2f2;
+    text-align:center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+.topnav a:hover {
+    background-color: #ddd;
+    color: black;
+}
+
+.h1 {
+    text-align: center;
+}
+
+.h4 {
+    text-align: center;
+}
