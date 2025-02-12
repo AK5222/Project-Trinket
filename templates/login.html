@@ -1,6 +1,8 @@
 <!-- front-end login page in html -->
-<!DOCTYPE html>
-<html lang="en">
+
+{% extends 'base.html' %}
+
+{% block head %}
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -35,11 +37,25 @@
         }
     </script>
 </head>
-<body>
-    <h1>Welcome to Trinket</h1>
-    <input type="text" id="email" placeholder="Email" required>
-    <input type="password" id="password" placeholder="Password" required>
+{% endblock %}
+
+{% block body %}
+<main class="content">
+    <h1 class="h1">Login</h1>
+</main>
+<div class="container">
+    <label for="email"><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="email" id="email" required>
+    <label for="psw"><b>Password</b></label>
+    <input type="text" placeholder="Enter Password" name="psw" required>
     <button onclick="handleLogin()">Login</button>
-    <button onclick="handleSignup()">Sign Up</button>
-</body>
-</html>
+    <label>
+        <input type="checkbox" checked="checked" name="remember"> Remember me
+    </label>
+</div>
+
+<div class="container" style="background-color: #f1f1f1">
+    <button type="button" class="cancelbtn">Cancel</button>
+    <span class="psw">Forgot <a href="/resetPassword">password?</a></span>
+</div>
+{% endblock %}
