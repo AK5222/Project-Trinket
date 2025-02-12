@@ -2,11 +2,34 @@
 {% extends 'base.html' %}
 
 {% block head %}
+<script>
+    async function handleSignup() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
 
+        const response = await fetch("/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+        alert(result.message || result.error);
+    }
+</script>
 {% endblock %}
 
 {% block body %}
 <main class="content">
-    <h1 class="h1">Register page</h1>
+    <h1 class="h1">Register</h1>
 </main>
+<div class="container">
+    <form onsubmit="event.preventDefault(); handleSignup();">
+        <label for="email"><b>Email</b></label>
+        <input type="text" placeholder="Enter Email" name="email" id="email" required>
+        <label for="password"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="password" id="password" required>
+        <button type="submit">Register</button>
+    </form>
+</div>
 {% endblock %}

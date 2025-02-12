@@ -3,7 +3,7 @@ import supabase
 from supabase import create_client, Client
 from flask import Flask, render_template, url_for, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
-from flask_cord import CORS
+from flask_cors import CORS
 from datetime import datetime
 from dotenv import load_dotenv
 import mimetypes
@@ -36,31 +36,37 @@ def account():
 
 
 #page for creating new account
-@app.route("/register", methods=["POST"])
-def signup():
-    data = request.json
-    email = data.get("email")
-    password = data.get("password")
+@app.route("/register", methods=["GET","POST"])
+def register():
+    if request.method == "POST":
+        data = request.json
+        email = data.get("email")
+        password = data.get("password")
 
-    try:
-        user = supabase_client.auth.sign_up({"email": email, "password": password})
-        return jsonify({"message": "User registered successfully"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        try:
+            user = supabase.auth.sign_up({"email": email, "password": password})
+            return jsonify({"message": "User registered successfully"}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
+    else:
+        return render_template('register.html')
       
       
 #login page
-@app.route("/login", methods=["POST"])
+@app.route("/login", methods=["GET","POST"])
 def login():
-    data = request.json
-    email = data.get("email")
-    password = data.get("password")
+    if request.method == "POST":
+        data = request.json
+        email = data.get("email")
+        password = data.get("password")
 
-    try:
-        user = supabase_client.auth.sign_in_with_password({"email": email, "password": password})
-        return jsonify({"message": "Login successful"}), 200
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+        try:
+            user = supabase.auth.sign_in_with_password({"email": email, "password": password})
+            return jsonify({"message": "Login successful"}), 200
+        except Exception as e:
+            return jsonify({"error": str(e)}), 400
+    else:
+        return render_template('login.html')
 
 #page for listing a new item to be put up for bidding
 @app.route('/list', methods=['POST', 'GET'])
