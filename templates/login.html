@@ -1,8 +1,42 @@
-<!--Main page for the site. Will show listings, and will have buttons for account (maybe, if time) and login-->
+<!-- front-end login page in html -->
+
 {% extends 'base.html' %}
 
 {% block head %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Trinket</title>
+    <script>
+        async function handleLogin() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
 
+            const response = await fetch("/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const result = await response.json();
+            alert(result.message || result.error);
+        }
+
+        async function handleSignup() {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            const response = await fetch("/signup", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email, password })
+            });
+
+            const result = await response.json();
+            alert(result.message || result.error);
+        }
+    </script>
+</head>
 {% endblock %}
 
 {% block body %}
@@ -10,11 +44,11 @@
     <h1 class="h1">Login</h1>
 </main>
 <div class="container">
-    <label for="uname"><b>Username</b></label>
-    <input type="text" placeholder="Enter Username" name="uname" required>
+    <label for="email"><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="email" id="email" required>
     <label for="psw"><b>Password</b></label>
-    <input type="text" placeholder="Enter Password" name="uname" required>
-    <button type="submit">Login</button>
+    <input type="text" placeholder="Enter Password" name="psw" required>
+    <button onclick="handleLogin()">Login</button>
     <label>
         <input type="checkbox" checked="checked" name="remember"> Remember me
     </label>

@@ -1,7 +1,9 @@
 import os
+import supabase
 from supabase import create_client, Client
 from flask import Flask, render_template, url_for, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cord import CORS
 from datetime import datetime
 from dotenv import load_dotenv
 import mimetypes
@@ -16,6 +18,7 @@ supabase: Client = create_client(url, key)
 
 #reference file name
 app = Flask(__name__)
+CORS(app)
 
 #place where listing images will be stored before being uploaded to supabase
 app.config['IMAGES'] = 'images'
@@ -26,24 +29,38 @@ app.config['IMAGES'] = 'images'
 def index():
     return render_template('index.html')
 
-
-#page for creating new account
-@app.route('/register')
-def register():
-    return render_template('register.html')
-
-
-#page for seeing account details (current listings, etc)
+#page for seeing account details (current listings, etc) 
 @app.route('/account')
 def account():
     return render_template('account.html')
 
 
-#login page
-@app.route('/login', methods=['GET','POST'])
-def login():
-    return render_template('login.html')   
+#page for creating new account
+@app.route("/register", methods=["POST"])
+def signup():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
 
+    try:
+        user = supabase_client.auth.sign_up({"email": email, "password": password})
+        return jsonify({"message": "User registered successfully"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+      
+      
+#login page
+@app.route("/login", methods=["POST"])
+def login():
+    data = request.json
+    email = data.get("email")
+    password = data.get("password")
+
+    try:
+        user = supabase_client.auth.sign_in_with_password({"email": email, "password": password})
+        return jsonify({"message": "Login successful"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
 
 #page for listing a new item to be put up for bidding
 @app.route('/list', methods=['POST', 'GET'])
