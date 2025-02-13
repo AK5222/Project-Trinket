@@ -2,11 +2,10 @@
 {% extends 'base.html' %}
 
 {% block head %}
-
 <meta charset="UTF-8">
- <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login - Trinket</title>
- <script>
+<script>
     async function handleLogin() {
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
@@ -24,24 +23,27 @@
 {% endblock %}
 
 {% block body %}
-<main class="content">
-    <h1 class="h1">Login</h1>
-</main>
-<div class="container">
-    <form onsubmit="event.preventDefault(); handleLogin();">
-        <label for="email"><b>Email</b></label>
-        <input type="text" placeholder="Enter Email" name="email" id="email" required>
-        <label for="password"><b>Password</b></label>
-        <input type="password" placeholder="Enter Password" name="password" id="password" required>
-        <button type="submit">Login</button>
-    </form>
-    <label>
-        <input type="checkbox" checked="checked" name="remember"> Remember me
-    </label>
-</div>
-
-<div class="container" style="background-color: #f1f1f1">
-    <button type="button" class="cancelbtn">Cancel</button>
-    <span class="psw">Forgot <a href="/resetPassword">password?</a></span>
+<div class="login-page">
+    <main class="login-container">
+        <h1 class="login-title">Login</h1>
+        <form class="login-form" onsubmit="event.preventDefault(); handleLogin();">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" placeholder="Enter Email" name="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" placeholder="Enter Password" name="password" id="password" required>
+            </div>
+            <div class="remember-me">
+                <input type="checkbox" checked="checked" name="remember" id="remember">
+                <label for="remember">Remember me</label>
+            </div>
+            <button type="submit" class="login_button">Login</button>
+        </form>
+        <div class="login-footer">
+            <a href="/resetPassword" class="forgot-password">Forgot password?</a>
+        </div>
+    </main>
 </div>
 {% endblock %}

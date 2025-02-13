@@ -1,18 +1,28 @@
 /* Will include formatting stuff for website */
 /* All of this is temporary. It needs to be improved at a later date, but feel free to change stuff to make it prettier */
 
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
 * {
-    box-sizing: 0;
-    font-family: "Copperplate", fantasy, sans-serif;
+    box-sizing: border-box;
+    font-family: 'Roboto', Arial, sans-serif;
+    margin: 0;  
+    padding: 0;
 }
+
 
 body {
-    margin: 0;
-}
-
+    background-color: #f0f2f5;
+    /*display: flex; */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+  }
+  
 .header {
     background-color:#003831;
-    text-align:center;
+    text-align: center;
     padding: 20px;
     font-size: 250%;
     color: white;
@@ -37,6 +47,115 @@ body {
     color: black;
 }
 
+
+.login-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 100%;
+    max-width: 400px;
+  }
+
+.login-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+
+.login-title {
+    color: #003831;
+    font-size: 24px;
+    margin-bottom: 24px;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .login-form {
+    display: flex;
+    flex-direction: column;
+  }
+
+.form-group {
+    margin-bottom: 20px;
+  }
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #333;
+    font-weight: 500;
+  }
+
+.form-group input[type="email"],
+.form-group input[type="password"] {
+    width: 100%;
+    padding: 12px 20px;
+    margin: 8px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+.remember-me {  
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #555;
+  }
+
+.remember-me input[type="checkbox"] {  
+    margin-right: 8px;
+  }
+   
+.login_button {  
+    background-color: #003831;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 0;
+    border: none;
+    cursor: pointer;
+    width: 100%;
+    border-radius: 4px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+    font-weight: 500;
+  }
+    
+.login_button:hover {
+    opacity: 0.8;
+    background-color: #00574a;
+  }
+    
+.login-footer {
+    text-align: center;
+    margin-top: 20px;
+  }
+    
+.forgot-password {
+    color: #003831;
+    text-decoration: none;
+    font-size: 14px;
+  }
+  
+.forgot-password:hover {  
+    text-decoration: underline;
+  }  
+  
+@media screen and (max-width: 480px) {
+  
+    .login-container {
+  
+      padding: 20px;
+  
+    }
+  
+}
+
+/*
 .h1 {
     text-align: center;
 }
@@ -144,3 +263,5 @@ span.psw {
     margin-top: 5%;
     top:20px;
 }
+
+*/
