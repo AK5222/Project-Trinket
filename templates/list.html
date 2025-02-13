@@ -5,20 +5,20 @@
 {% endblock %}
 
 {% block body %}
-<main class="content">
-    <h1 class="h1">List an item for sale</h1>
-    <div class="container">
-        <form action="/list" method="POST" enctype="multipart/form-data">
-            <div>
-                <label for="name"><b>Name of Item</b></label>
+<div class="list-page">
+    <main class="list-container">
+        <h1 class="list-title">List an Item for Sale</h1>
+        <form action="/list" method="POST" enctype="multipart/form-data" class="list-form">
+            <div class="form-group">
+                <label for="name">Name of Item</label>
                 <input type="text" placeholder="Enter Name (required)" name="name" id="name" required>
             </div>
-            <div>
-                <label for="bid"><b>Starting Bid</b></label>
+            <div class="form-group">
+                <label for="bid">Starting Bid ($)</label>
                 <input type="number" placeholder="Enter Bid (required)" name="bid" id="bid" min="0" step="0.01" required>
             </div>
-            <div>
-                <label for="cond"><b>Condition</b></label>
+            <div class="form-group">
+                <label for="cond">Condition</label>
                 <select name="cond" id="cond" required>
                     <option value="" disabled selected>Choose Condition:</option>
                     <option value="new">New</option>
@@ -27,20 +27,16 @@
                     <option value="poor">Poor Condition</option>
                 </select>
             </div>
-            <div>
-                <label for="desc"><b>Description</b></label>
-                <input type="text" placeholder="Enter Description" name="desc" id="desc">
+            <div class="form-group">
+                <label for="desc">Description</label>
+                <textarea placeholder="Enter Description" name="desc" id="desc"></textarea>
             </div>
-            <div style="margin-top: 1%;">
-                <input type="file" name="image" id="image" accept="image/*" style="opacity: 0; position: absolute; z-index: -1;">
-                <label for="image" class="imagebutton" style="display: inline-block; background: #007bff; color: white; padding: 10px 15px; border-radius: 5px; cursor: pointer;">
-                    + Upload Image
-                </label>
+            <div class="form-group upload-section">
+                <input type="file" name="image" id="image" accept="image/*" hidden>
+                <label for="image" class="upload-button">+ Upload Image</label>
             </div>
-            <div>
-                <button type="submit" style="margin-top: 3%;">Submit Listing</button>
-            </div>
+            <button type="submit" class="submit-button">Submit Listing</button>
         </form>
-    </div>
-</main>
+    </main>
+</div>
 {% endblock %}
