@@ -1,0 +1,49 @@
+<!-- front-end login page in html -->
+{% extends 'base.html' %}
+
+{% block head %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Trinket</title>
+<script>
+    async function handleLogin() {
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        const response = await fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+        alert(result.message || result.error);
+    }
+</script>
+{% endblock %}
+
+{% block body %}
+<div class="login-page">
+    <main class="login-container">
+        <h1 class="login-title">Login</h1>
+        <form class="login-form" onsubmit="event.preventDefault(); handleLogin();">
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" placeholder="Enter Email" name="email" id="email" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" placeholder="Enter Password" name="password" id="password" required>
+            </div>
+            <div class="remember-me">
+                <input type="checkbox" checked="checked" name="remember" id="remember">
+                <label for="remember">Remember me</label>
+            </div>
+            <button type="submit" class="login_button">Login</button>
+        </form>
+        <div class="login-footer">
+            <a href="/resetPassword" class="forgot-password">Forgot password?</a>
+        </div>
+    </main>
+</div>
+{% endblock %}
