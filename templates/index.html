@@ -1,0 +1,17 @@
+<!--Main page for the site. Will show listings, and will have buttons for account (maybe, if time) and login-->
+{% extends 'base.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+<main class="content">
+    <h1 class="h1">Listings</h1>
+    {% if tasks|length < 1 %}
+    <h4 class="h4">There are currently no live listings. Check back soon!</h4>
+    {% else %}
+    <h4>Listings found!</h4>
+    {% endif %}
+</main>
+{% endblock %}
