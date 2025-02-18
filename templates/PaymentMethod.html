@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Payment Information</title>
+  <!-- Link to the external CSS file -->
+  <link rel="stylesheet" href="PaymentMethod.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Payment Information</h1>
+    <form action="#" method="post">
+      <!-- Cardholder's Name -->
+      <div class="form-group">
+        <label for="cardholderName">Cardholder's Name</label>
+        <input
+          type="text"
+          id="cardholderName"
+          name="cardholderName"
+          placeholder="John Doe"
+          required
+        />
+      </div>
+
+      <!-- Card Number -->
+      <div class="form-group">
+        <label for="cardNumber">Card Number</label>
+        <input
+          type="text"
+          id="cardNumber"
+          name="cardNumber"
+          pattern="[0-9]{16}"
+          placeholder="1234 5678 9012 3456"
+          required
+        />
+      </div>
+
+      <!-- Expiration Date & CVV -->
+      <div class="row">
+        <div class="form-group">
+          <label for="expiryDate">Expiration Date</label>
+          <input
+            type="month"
+            id="expiryDate"
+            name="expiryDate"
+            required
+          />
+        </div>
+        <div class="form-group">
+          <label for="cvv">CVV</label>
+          <input
+            type="text"
+            id="cvv"
+            name="cvv"
+            pattern="[0-9]{3,4}"
+            placeholder="123"
+            required
+          />
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit">Submit Payment</button>
+
+      <!-- Note or Disclaimer -->
+      <div class="note">
+        Please ensure your connection is secure before submitting your payment details.
+      </div>
+    </form>
+  </div>
+</body>
+</html>
