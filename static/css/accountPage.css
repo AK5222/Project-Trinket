@@ -1,0 +1,96 @@
+/* ------------ Account Page Styles ------------ */
+
+/* A wrapper that centers all content vertically/horizontally. */
+.account-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center; 
+    justify-content: center; /* If you want full viewport vertical center */
+    min-height: 100vh;       /* Ensure it takes the full height of the screen */
+    text-align: center;      /* Center text by default */
+    padding: 20px;
+}
+
+/* Title or heading for the account page. */
+.account-title {
+    color: #003831;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* A container (card-like) for the user’s info and form. */
+.account-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto; /* Centers the container horizontally */
+}
+
+/* The form that holds the editable fields for name & date of birth. */
+.account-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center labels/inputs if you prefer, or use 'start' */
+    width: 100%;
+}
+
+/* Label styling */
+.account-form label {
+    display: block;
+    margin: 10px 0 5px;
+    font-weight: 500;
+    color: #333;
+    width: 100%;  /* Ensures label spans the full width */
+    text-align: left; /* Left-align the label text if desired */
+}
+
+/* Input fields for text and date */
+.account-form input[type="text"],
+.account-form input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 16px;
+    /* Optional focus styles */
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+.account-form input[type="text"]:focus,
+.account-form input[type="date"]:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* Button for saving the changes (reuse your existing button styles if you wish) */
+.account-form .account-button {
+    background-color: #003831;
+    color: #ffffff;
+    padding: 14px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;  /* Make the button full-width; remove if you want smaller */
+    margin-top: 10px;
+}
+
+.account-form .account-button:hover {
+    background-color: #00574a;
+    opacity: 0.8;
+}
+
+/* Responsive adjustments for smaller screens */
+@media screen and (max-width: 480px) {
+    .account-container {
+        padding: 20px;
+        margin: 0 10px;
+    }
+}
