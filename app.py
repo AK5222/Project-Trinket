@@ -1,10 +1,11 @@
 import os
+import listing
 import supabase
 from supabase import create_client, Client
 from flask import Flask, render_template, url_for, request, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
-from datetime import datetime
+from datetime import datetime, timedelta
 from dotenv import load_dotenv
 import mimetypes
 from werkzeug.utils import secure_filename
@@ -24,10 +25,41 @@ CORS(app)
 app.config['IMAGES'] = 'images'
 
 
+currListings = {}
+currListings = {}
+currListingsRaw = supabase.table('Listings').select('*').execute().data
+
+for i in currListingsRaw:
+    print(i)
+    temp = listing.Listing(i)
+    tempName = i['id']
+    currListings[temp] = temp
+    print(temp)
+
+
+print('yippeeeee')
+for i in currListings:
+    print(type(i))
+time_to_refresh = 30
+
+async def testListings():
+    currListings = {}
+    currListingsRaw = supabase.table('Listings').select('*').execute().data
+
+    for i in currListingsRaw:
+        print(i)
+        temp = listing.Listing(i)
+        currListings[i['id']] = temp
+        print(temp)
+
+
+    print('yippeeeee')
+
+
 #create index route - just shows main page
 @app.route('/', methods=['POST','GET'])
 def index():
-    return render_template('index.html')
+    return render_template('index.html', currListings = currListings)
 
 #page for seeing account details (current listings, etc) 
 @app.route('/account')
@@ -113,7 +145,7 @@ def list():
 
         #now that we have the image in a location we know, we can send the image to supabase
         with open(image_path, 'rb') as img:
-            supabase.storage.from_('images').upload(file = image_path, path=image_path, file_options={'content-type':'image/jpeg','cache-control':'3600','upsert':'false'},)
+            supabase.storage.from_('images').upload(file = image_path, path=image.filename, file_options={'content-type':'image/*','cache-control':'3600','upsert':'false'},)
         #send user to a page that informs them that the listing was created successfully
         return render_template('listingSuccess.html')
     
@@ -133,5 +165,19 @@ def createListing(name, bid, condition, description, image):
         print('listing fail :(')
     return success
 
+def fetchNewListings():
+    time_threshold = datetime.now(datetime.timezone.utc)-timedelta(minutes=time_to_refresh)
+    return supabase.table('Listings').select('*').gte('created_at', time_threshold.isoformat()).execute() 
+
+def updateListings():
+    try:
+        currListings = fetchNewListings()
+    except:
+        return False
+    
+    return True
+
 if __name__ == "__main__":
     app.run(debug=True)
+    testListings()
+    print(currListings)

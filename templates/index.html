@@ -8,10 +8,20 @@
 {% block body %}
 <main class="content">
     <h1 class="h1">Listings</h1>
-    {% if tasks|length < 1 %}
+    {% if currListings|length < 1 %}
     <h4 class="h4">There are currently no live listings. Check back soon!</h4>
     {% else %}
     <h4>Listings found!</h4>
+    <table>
+        <td>
+            {% for listing in currListings %}
+            <tr><img src={{listing.getURL()}} alt="" border=2 height=200 width=200></img></tr>
+            <tr>{{listing.getName()}}</tr>
+            <tr>{{listing.getBid()}}</tr>
+            <tr>{{listing.getCondition()}}</tr>
+            {% endfor %}
+        </td>
+    </table>
     {% endif %}
 </main>
 {% endblock %}
