@@ -14,6 +14,8 @@ url: str = os.getenv("SUPABASE_URL")
 key: str = os.getenv('SUPABASE_ADMIN_KEY')
 supabase: Client = create_client(url, key)
 
+
+#store listing. Takes item from currListings dict from app.py as input
 class Listing():
     def __init__(self, listingInfo):
         self.id = listingInfo['id']
@@ -21,8 +23,13 @@ class Listing():
         self.bid = listingInfo['bid']
         self.condition = listingInfo['condition']
         self.description = listingInfo['description']
-        self.imageURL = supabase.storage.from_('images').create_signed_url(listingInfo['image'], 3600)['signedUrl']
 
+        #stores signed url of image rather than image itself so we don't have to redownload the image
+        self.imageURL = supabase.storage.from_('images').create_signed_url(listingInfo['image'], 100000)['signedUrl']
+
+    def getId(self):
+        return self.id
+    
     def getName(self):
         return self.name
     
@@ -33,10 +40,19 @@ class Listing():
         return self.condition
     
     def getURL(self):
-        print(self.imageURL)
         return self.imageURL
 
+    #checks if user's bid beats current bid, updates highest bid on listing if true
     def updateBid(self, newBid):
         if newBid > self.bid:
             self.bid = newBid
             return supabase.table('Listings').update({'bid': newBid}).eq('id', self.id).execute()
+        
+
+    #for debugging purposes - print listing info to terminal
+    def printInfo(self):
+        print(f"-----------Listing ID {self.id}-----------")
+        print(f'Name: {self.name}')
+        print(f'Current Bid: {self.bid}')
+        print(f'Description: {self.description}')
+        print(f'Condition: {self.condition}\n\n\n')

@@ -1,0 +1,20 @@
+<!--Generic listing page for each listing. From here, users can gather more information about each listing and place a bid.-->
+{% extends 'base.html' %}
+
+{% block head %}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ listing.name }}</title>
+{% endblock %}
+
+{% block body %}
+<div class="listing-page">
+    <img src="{{ listing.getURL() }}" width="300">
+    <h1>{{ listing.name }}</h1>
+    <p>Condition: {{ listing.condition }}</p>
+    <p>Description: {{ listing.description }}</p>
+    <p>Current Bid: ${{ listing.bid }}</p>
+    <!--TODO: add button here for placing a bid.-->
+    <a href="{{ url_for('index') }}">Back to Listings</a>
+</div>
+{% endblock %}

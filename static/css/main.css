@@ -373,3 +373,27 @@ span.psw {
 }
 
 */
+
+.listings-container {
+    display: flex;
+    justify-content: center; /* Centers the listings horizontally */
+    align-items: flex-end;
+    gap: 50px; /* Adds spacing between listings */
+    flex-wrap: wrap; /* Ensures responsiveness */
+}
+
+.listing {
+    text-align: center; /* Centers text within each listing */
+    max-width: 200px; /* Adjust width as needed */
+}
+
+.listing img {
+    width: 100%; /* Makes the image responsive */
+    height: auto;
+    border-radius: 20px; /* Optional styling */
+}
+
+.listing a {
+    text-decoration: none;
+    color: black;
+}
