@@ -32,7 +32,8 @@ def index():
 #page for seeing account details (current listings, etc) 
 @app.route('/account')
 def account():
-    return render_template('account.html')
+    return render_template('accountPage.html')
+
 
 
 #page for creating new account
