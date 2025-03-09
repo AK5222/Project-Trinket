@@ -16,10 +16,15 @@
 </head>
 <body>
     <div class="topnav">
-        <a href="/login">Sign In</a>
-        <a href="/account">Account</a>
-        <a href="/list">List Item</a>
         <a href="/">Home</a>
+        {% if user_logged_in %}
+            <a href="/account">Account</a>
+            <a href="/list">List Item</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        {% else %}
+            <a href="{{ url_for('login') }}">Sign In</a>
+            <a href="{{ url_for('register') }}">Register</a>
+        {% endif %}
     </div>
     <hr>
     <div class="body">

@@ -28,6 +28,10 @@ Session(app)
 #place where listing images will be stored before being uploaded to supabase
 app.config['IMAGES'] = 'images'
 
+@app.context_processor
+def inject_user():
+    return {"user_logged_in": 'user' in session}
+
 
 #create index route - just shows main page
 @app.route('/', methods=['POST','GET'])
@@ -69,7 +73,7 @@ def login():
             user = supabase.auth.sign_in_with_password({"email": email, "password": password})
             if user:
                 session['user'] = user.user.id  # Store user ID in session
-                return jsonify({"message": "Login successful"}), 200
+                return jsonify({"message": "Login successful", "redirect": url_for('index')}), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 400
     return render_template('login.html')
