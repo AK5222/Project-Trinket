@@ -1,10 +1,11 @@
 import pytest
 import json
 from unittest.mock import patch, MagicMock
-from app import app
-from listing import Listing
 from io import BytesIO
-from supabase import create_client, Client
+from app import app, supabase  # Import supabase directly from app
+from listing import Listing
+from app import currListings
+from supabase import create_client
 
 
 
@@ -50,8 +51,6 @@ def test_list_fail_no_image(client):
     assert response.status_code == 400
     assert "error" in response.get_json()
 
-from io import BytesIO
-
 def test_list_fail_invalid_image(client):
     """Test listing creation fails due to invalid image format"""
     data = {"name": "Test Item", "bid": "10", "cond": "New"}
@@ -66,10 +65,26 @@ def test_list_fail_invalid_image(client):
     response_json = response.get_json()
     assert "error" in response_json
 
+@pytest.fixture
+def mock_storage():
+    """Mock Supabase Storage API"""
+    with patch.object(supabase.storage.from_(), "create_signed_url") as mock_signed_url:
+        mock_signed_url.return_value = {"signedUrl": "https://mockstorage.com/fakeimage.png"}
+        yield mock_signed_url
 
-def test_listing_page_exists(client):
+@patch("supabase.create_client")
+
+@patch("supabase.storage.Client.from_")  # Mocking from_ directly
+def test_listing_page_exists(mock_from, client):
     """Test accessing an existing listing page"""
-    with patch("app.currListings", {1: Listing({"id": 1, "name": "Item", "bid": 10, "condition": "New", "description": "Desc", "image": "1"})}):
+
+    # Create mock storage bucket and return a signed URL
+    mock_bucket = MagicMock()
+    mock_bucket.create_signed_url.return_value = {"signedUrl": "https://mockstorage.com/fakeimage.png"}
+    mock_from.return_value = mock_bucket  # Ensure from_() returns the mock bucket
+
+    # Patch currListings
+    with patch.dict(currListings, {1: Listing({"id": 1, "name": "Item", "bid": 10, "condition": "New", "description": "Desc", "image": "1"})}):
         response = client.get("/listingPage/1")
         assert response.status_code == 200
 
@@ -98,17 +113,11 @@ def test_update_bid_fail_lower_bid():
     assert result is None  # No database update
 
 # ---------------- MOCKING SUPABASE ---------------- #
-
-
-@patch("app.supabase.auth.sign_up")
+@patch.object(supabase.auth, "sign_up")
 def test_register_mock(mock_signup, client):
     """Test user registration with mocked Supabase"""
-    # Set the mock return value for sign_up
     mock_signup.return_value = {"user": {"email": "mockuser@example.com"}}
-    
-    # Make a mock registration request via the Flask test client
     response = client.post("/register", json={"email": "mockuser@example.com", "password": "MockPass123"})
-    
-    # Assert that the status code is 200 and the response contains a message
     assert response.status_code == 200
     assert "message" in response.get_json()
+
