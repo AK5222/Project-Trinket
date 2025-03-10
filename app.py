@@ -289,7 +289,8 @@ def timeLeft():
     return seconds_left
 
 
-#change this for when we are not debugging
+#When debugging is set to true, the site will grab new listings every minute and will not remove old listings. When it is set to false,
+#the site grabs new listings every 30 minutes and deletes all old listings within the Listings db.
 debugging = True
 
 
