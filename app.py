@@ -289,7 +289,10 @@ def timeLeft():
     return seconds_left
 
 
+#change this for when we are not debugging
 debugging = True
+
+
 #threading/scheduler required for scheduling tasks every half hour
 def run_scheduler():
     global currListings
