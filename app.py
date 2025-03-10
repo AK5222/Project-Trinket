@@ -133,7 +133,12 @@ def list():
         os.rename(image_path_raw, image_path_new)
 
         #now that we have the image in a location we know, we can send the image to supabase
-        supabase.storage.from_('images').upload(file = image_path_new, path=image_name, file_options={'content-type':'image/*','cache-control':'3600','upsert':'false'},)
+        try:
+            supabase.storage.from_('images').upload(file = image_path_new, path=image_name, file_options={'content-type':'image/*','cache-control':'3600','upsert':'false'},)
+        except Exception as e:
+            print(f"Error occurred: {e}")
+            supabase.table('Listings').select('image').lte('created_at', target_time.isoformat()).execute()
+            supabase.delete().eq("id", image_name).execute()
         
         #we no longer need to store the image locally - delete it
         os.remove(image_path_new)
@@ -244,20 +249,24 @@ def updateListings():
     try:
         #iterate through dict of listings, and make each its own listing
         for i in currListingsRaw.data:
-            temp = listing.Listing(i)
-            listingName = temp.getId()
+            print(type(i))
+            print(i)
+            try:
+                temp = listing.Listing(i)
+                listingName = temp.getId()
+                 #store each listing as its id for a key within the currListings dict
+                currListings[listingName] = temp
+            except:
+                print('Error adding this listing.')
+                pass
 
-            #store each listing as its id for a key within the currListings dict
-            currListings[listingName] = temp
 
             #temp.printInfo() #for debugging purposes
         #print(currListings) #for debugging purposes
     except Exception as e:
         print(f"Error while adding listings: {e}")
-        return False
     
     print("Successfully added listings.")
-    return True
 
 
 
@@ -280,22 +289,23 @@ def timeLeft():
     return seconds_left
 
 
-
+debugging = True
 #threading/scheduler required for scheduling tasks every half hour
 def run_scheduler():
     global currListings
-    schedule.every().hour.at(":00").do(processListings)
-    schedule.every().hour.at(":30").do(processListings)
-    time_to_refresh = 30
+    if debugging:
+        updateListings()
+        schedule.every().minute.do(updateListings)
+
+    else:
+        schedule.every().hour.at(":00").do(processListings)
+        schedule.every().hour.at(":30").do(processListings)
     
     while True:
         schedule.run_pending()
         time.sleep(1)
 
 
-
-
-debugging = True
 scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
 scheduler_thread.start()
 if __name__ == "__main__":
