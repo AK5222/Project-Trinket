@@ -25,7 +25,7 @@ class Listing():
         self.description = listingInfo['description']
 
         #stores signed url of image rather than image itself so we don't have to redownload the image
-        self.imageURL = supabase.storage.from_('images').create_signed_url(listingInfo['image'], 100000)['signedUrl']
+        self.imageURL = supabase.storage.from_('images').create_signed_url(listingInfo['image'], 100000)['signedURL']
 
     def getId(self):
         return self.id
@@ -40,7 +40,7 @@ class Listing():
         return self.condition
     
     def getURL(self):
-        return self.imageURL
+       return self.imageURL
 
     #checks if user's bid beats current bid, updates highest bid on listing if true
     def updateBid(self, newBid):

@@ -151,19 +151,54 @@ def list():
 
 
 #This page shows more information about a listing, and will give users the option to bid on them
+
 @app.route('/listingPage/<int:listing_id>')
 def listingPage(listing_id):
-    global currListings
+   response = (
+       supabase
+       .table("Listings")
+       .select("*")
+       .eq("id", listing_id)
+       .single()
+       .execute()
+   )
 
-    #Make sure we're looking for a current listing. Might want to extend this later to allow users to see past bids but probably don't have time to implement this
-    item = currListings.get(listing_id)
-    if not item:
-        return "Listing not found", 404
-    
-    #Serve listing page if listing is found
-    return render_template("listingPage.html", listing=item)
+
+   # 1. Check if data was returned
+   if not response.data:
+       # If you want more info, print(response.body) or print(response) to debug
+       return "Listing not found.", 404
 
 
+   # 2. If successful, show the listing
+   listing = response.data
+   return render_template("listingPage.html", listing=listing)
+
+
+@app.route('/place_bid/<int:listing_id>', methods=['POST'])
+def place_bid(listing_id):
+   new_bid = request.form.get('new_bid')
+   if not new_bid:
+       return "No bid provided", 400
+
+
+   try:
+       new_bid_value = float(new_bid)
+   except ValueError:
+       return "Invalid bid format", 400
+
+
+   try:
+       # Update 'bid' in your 'Listings' table
+       response = supabase.table('Listings').update({'bid': new_bid_value}).eq('id', listing_id).execute()
+       print("Successfully updated bid")
+   except:
+       print("Bid update failed :(")
+       return "Failed to update bid", 500
+
+
+   # Redirect to listing page (assuming you have a listingPage route)
+   return redirect(url_for('listingPage', listing_id=listing_id))
 
 #responsible for sending listings to supabase table
 def createListing(name, bid, condition, description, image):
