@@ -35,7 +35,6 @@ def account():
     return render_template('accountPage.html')
 
 
-
 #page for creating new account
 @app.route("/register", methods=["GET","POST"])
 def register():
