@@ -5,7 +5,8 @@ import supabase
 import schedule
 import threading
 from supabase import create_client, Client
-from flask import Flask, render_template, url_for, request, redirect, jsonify
+from flask import Flask, render_template, url_for, request, redirect, jsonify, session
+from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime, timedelta, timezone
@@ -25,8 +26,16 @@ supabase: Client = create_client(url, key)
 app = Flask(__name__)
 CORS(app)
 
-#place where listing images will be locally stored before being uploaded to supabase
+
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "supersecretkey")  # Keep it secure
+Session(app)
+
 app.config['IMAGES'] = 'images'
+
+@app.context_processor
+def inject_user():
+    return {"user_logged_in": 'user' in session}
 
 
 #global dict for transferring listings from supabase to flask to the webpage
@@ -75,7 +84,7 @@ def register():
 
 
 #login page
-@app.route("/login", methods=["GET","POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         data = request.json
@@ -84,11 +93,17 @@ def login():
 
         try:
             user = supabase.auth.sign_in_with_password({"email": email, "password": password})
-            return jsonify({"message": "Login successful"}), 200
+            if user:
+                session['user'] = user.user.id  # Store user ID in session
+                return jsonify({"message": "Login successful", "redirect": url_for('index')}), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 400
-    else:
-        return render_template('login.html')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)  # Remove user from session
+    return redirect(url_for('index'))
 
 
 
