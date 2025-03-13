@@ -8,15 +8,26 @@
 {% endblock %}
 
 {% block body %}
-<div class="list-page">
-    <div class="list-container">
-        <img src="{{ listing.getURL() }}" width="300">
-        <h1>{{ listing.name }}</h1>
-        <p>Condition: {{ listing.condition }}</p>
-        <p>Description: {{ listing.description }}</p>
-        <p>Current Bid: ${{ listing.bid }}</p>
-        <!--TODO: add button here for placing a bid.-->
-        <a class="a1" href="{{ url_for('index') }}">Back to Listings</a>
-    </div>
+
+<div class="listing-page">
+    <img src="{{ listing.imageURL }}" alt="Listing Image" width="300">
+    <h1>{{ listing.name }}</h1>
+    <p>Condition: {{ listing.condition }}</p>
+    <p>Description: {{ listing.description }}</p>
+    <p>Current Bid: ${{ listing.bid }}</p>
+    <!--TODO: add button here for placing a bid.-->
+    <form method="POST" action="{{ url_for('place_bid', listing_id=listing.id) }}">
+        <label for="bid">Enter your new bid:</label>
+        <input
+            type="number"
+            step="0.01"
+            name="new_bid"
+            id="new_bid"
+            required
+        />
+        <button type="submit">Place Bid</button>
+    </form>
+    <a href="{{ url_for('index') }}">Back to Listings</a>
+
 </div>
 {% endblock %}

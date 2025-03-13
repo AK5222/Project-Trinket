@@ -108,77 +108,127 @@ def logout():
 
 
 
-#page for listing a new item to be put up for bidding
 @app.route('/list', methods=['POST', 'GET'])
 def list():
-
-
-    #everything in the if statement is triggered once the "submit listing" button is pushed
     if request.method == 'POST':
-
-
-        #assign variables. We don't need to check if these are null since the html page checks
         name = request.form['name']
         bid = request.form['bid']
         condition = request.form['cond']
-        image = request.files['image']
-        
-        # Sends us to a function that handles uploading the listing to supabase. immediately change filename to listing id
-        response = createListing(name, bid, condition, request.form['desc'], image.filename)
+        image = request.files.get('image')  # Use get to avoid KeyError if image is not provided
 
-        # Make sure our image type is correct
+        if not image:
+            return jsonify({'error': 'No image provided'}), 400  # Ensure the response is always JSON
+
+        # Make sure image format is correct
         if image.content_type not in ['image/jpeg', 'image/png', 'image/jpg']:
             return jsonify({'error': 'Invalid image format'}), 400
 
+        # Process image and listing (the rest of your code)
+        response = createListing(name, bid, condition, request.form['desc'], image.filename)
 
-        #grab name of file
         image_data = secure_filename(image.filename)
-
-        #clean name of file since later lines replace the actual file's spaces in title with underscore
         image_filename = image.filename.replace(" ",'_')
 
-        #save image to a folder known to flask
         basedir = os.path.abspath(os.path.dirname(__file__))
         image.save(os.path.join(basedir, app.config['IMAGES'], image_data))
 
-        #convert the name of the image to the ID of its listing
         image_name = str(response.data[0]['id'])
-        image_path_raw='./images/'+image_filename
-        image_path_new = './images/'+str(image_name)
+        image_path_raw = './images/' + image_filename
+        image_path_new = './images/' + str(image_name)
         os.rename(image_path_raw, image_path_new)
 
-        #now that we have the image in a location we know, we can send the image to supabase
         try:
-            supabase.storage.from_('images').upload(file = image_path_new, path=image_name, file_options={'content-type':'image/*','cache-control':'3600','upsert':'false'},)
+            supabase.storage.from_('images').upload(file=image_path_new, path=image_name, file_options={'content-type': 'image/*', 'cache-control': '3600', 'upsert': 'false'})
         except Exception as e:
             print(f"Error occurred: {e}")
             supabase.table('Listings').select('image').lte('created_at', target_time.isoformat()).execute()
             supabase.delete().eq("id", image_name).execute()
-        
-        #we no longer need to store the image locally - delete it
+
         os.remove(image_path_new)
 
-        #send user to a page that informs them that the listing was created successfully
         return render_template('listingSuccess.html')
     
-    #if something goes wrong and isnt caught by one of the excepts, send us back to list.html - we should never reach this
     return render_template('list.html')
 
 
+
+
 #This page shows more information about a listing, and will give users the option to bid on them
+
 @app.route('/listingPage/<int:listing_id>')
 def listingPage(listing_id):
-    global currListings
+   response = (
+       supabase
+       .table("Listings")
+       .select("*")
+       .eq("id", listing_id)
+       .single()
+       .execute()
+   )
 
-    #Make sure we're looking for a current listing. Might want to extend this later to allow users to see past bids but probably don't have time to implement this
-    item = currListings.get(listing_id)
-    if not item:
-        return "Listing not found", 404
-    
-    #Serve listing page if listing is found
-    return render_template("listingPage.html", listing=item)
+
+   # 1. Check if data was returned
+   if not response.data:
+       # If you want more info, print(response.body) or print(response) to debug
+       return "Listing not found.", 404
 
 
+   # 2. If successful, show the listing
+   listing = response.data
+
+   if 'image' in listing:
+       signed_url_data = supabase.storage.from_('images').create_signed_url(listing['image'], 100000)
+       listing['imageURL'] = signed_url_data['signedUrl']
+
+   return render_template("listingPage.html", listing=listing)
+
+
+@app.route('/place_bid/<int:listing_id>', methods=['POST'])
+def place_bid(listing_id):
+    new_bid = request.form.get('new_bid')
+    if not new_bid:
+        return "No bid provided", 400
+
+    try:
+        new_bid_value = float(new_bid)
+    except ValueError:
+        return "Invalid bid format", 400
+
+    # Retrieve the current bid for the listing
+    current_listing_response = (
+        supabase
+        .table("Listings")
+        .select("bid")
+        .eq("id", listing_id)
+        .single()
+        .execute()
+    )
+
+    if not current_listing_response.data:
+        return "Listing not found.", 404
+
+    current_bid = current_listing_response.data['bid']
+
+    # Ensure the new bid is higher than the current bid
+    if new_bid_value <= current_bid:
+        return f"Your bid must be higher than the current bid of {current_bid}.", 400
+
+    try:
+        # Update 'bid' in your 'Listings' table
+        response = (
+            supabase
+            .table('Listings')
+            .update({'bid': new_bid_value})
+            .eq('id', listing_id)
+            .execute()
+        )
+        print("Successfully updated bid")
+    except Exception as e:
+        print(f"Bid update failed: {e}")
+        return "Failed to update bid", 500
+
+    # Redirect to listing page (assuming you have a listingPage route)
+    return redirect(url_for('listingPage', listing_id=listing_id))
 
 #responsible for sending listings to supabase table
 def createListing(name, bid, condition, description, image):
@@ -328,4 +378,4 @@ def run_scheduler():
 scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
 scheduler_thread.start()
 if __name__ == "__main__":
-    app.run(debug=debugging)
+    app.run(debug=True)
