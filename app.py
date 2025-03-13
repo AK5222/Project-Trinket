@@ -172,33 +172,60 @@ def listingPage(listing_id):
 
    # 2. If successful, show the listing
    listing = response.data
+
+   if 'image' in listing:
+       signed_url_data = supabase.storage.from_('images').create_signed_url(listing['image'], 100000)
+       listing['imageURL'] = signed_url_data['signedUrl']
+
    return render_template("listingPage.html", listing=listing)
 
 
 @app.route('/place_bid/<int:listing_id>', methods=['POST'])
 def place_bid(listing_id):
-   new_bid = request.form.get('new_bid')
-   if not new_bid:
-       return "No bid provided", 400
+    new_bid = request.form.get('new_bid')
+    if not new_bid:
+        return "No bid provided", 400
 
+    try:
+        new_bid_value = float(new_bid)
+    except ValueError:
+        return "Invalid bid format", 400
 
-   try:
-       new_bid_value = float(new_bid)
-   except ValueError:
-       return "Invalid bid format", 400
+    # Retrieve the current bid for the listing
+    current_listing_response = (
+        supabase
+        .table("Listings")
+        .select("bid")
+        .eq("id", listing_id)
+        .single()
+        .execute()
+    )
 
+    if not current_listing_response.data:
+        return "Listing not found.", 404
 
-   try:
-       # Update 'bid' in your 'Listings' table
-       response = supabase.table('Listings').update({'bid': new_bid_value}).eq('id', listing_id).execute()
-       print("Successfully updated bid")
-   except:
-       print("Bid update failed :(")
-       return "Failed to update bid", 500
+    current_bid = current_listing_response.data['bid']
 
+    # Ensure the new bid is higher than the current bid
+    if new_bid_value <= current_bid:
+        return f"Your bid must be higher than the current bid of {current_bid}.", 400
 
-   # Redirect to listing page (assuming you have a listingPage route)
-   return redirect(url_for('listingPage', listing_id=listing_id))
+    try:
+        # Update 'bid' in your 'Listings' table
+        response = (
+            supabase
+            .table('Listings')
+            .update({'bid': new_bid_value})
+            .eq('id', listing_id)
+            .execute()
+        )
+        print("Successfully updated bid")
+    except Exception as e:
+        print(f"Bid update failed: {e}")
+        return "Failed to update bid", 500
+
+    # Redirect to listing page (assuming you have a listingPage route)
+    return redirect(url_for('listingPage', listing_id=listing_id))
 
 #responsible for sending listings to supabase table
 def createListing(name, bid, condition, description, image):

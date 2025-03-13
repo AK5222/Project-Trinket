@@ -9,7 +9,7 @@
 
 {% block body %}
 <div class="listing-page">
-    <img src="{{ listing.getURL() }}" width="300">
+    <img src="{{ listing.imageURL }}" alt="Listing Image" width="300">
     <h1>{{ listing.name }}</h1>
     <p>Condition: {{ listing.condition }}</p>
     <p>Description: {{ listing.description }}</p>

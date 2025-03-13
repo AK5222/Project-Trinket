@@ -25,8 +25,8 @@ class Listing():
         self.description = listingInfo['description']
 
         #stores signed url of image rather than image itself so we don't have to redownload the image
-        self.imageURL = supabase.storage.from_('images').create_signed_url(listingInfo['image'], 100000)['signedURL']
-
+        self.imageURL = supabase.storage.from_('images').create_signed_url(listingInfo['image'], 100000)['signedUrl']
+        
     def getId(self):
         return self.id
     
