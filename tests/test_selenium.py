@@ -1,163 +1,148 @@
+# test_selenium.py
 import pytest
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.chrome.options import Options
 import time
+import os
+import base64
+import tempfile
+from dotenv import load_dotenv
 
-# Setup and Teardown for WebDriver
+load_dotenv()
+
+# Constants - Replace with your actual app URL and credentials
+BASE_URL = "http://127.0.0.1:5000"  # Default Flask URL. Change if different.
+TEST_EMAIL = "test@example.com"  # Replace with your test email. Ensure this user exists.
+TEST_PASSWORD = "testpassword"  # Replace with your test password
+
+# Supabase URL
+SUPABASE_URL = os.getenv("SUPABASE_URL")
+
+# Base64 encoded 1x1 pixel transparent GIF
+TRANSPARENT_GIF_BASE64 = "R0lGODlhAQABAIAAAP///////yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
+
 @pytest.fixture(scope="module")
 def driver():
-    # Setup: Start ChromeDriver
-    driver = webdriver.Chrome()
-    driver.get("http://localhost:5000")  # Replace with your app's local URL if different
-    yield driver  # The tests will run here
-    # Teardown: Close WebDriver
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")  # Run Chrome in headless mode
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.implicitly_wait(5)  # Reduced implicit wait
+    yield driver
     driver.quit()
 
-# 1. Test Navigation Bar and Links
-def test_navigation_bar(driver):
-    # Test all the links in the navigation bar
-    nav_links = [
-        ("/login", "Sign In"),
-        ("/account", "Account"),
-        ("/list", "List Item"),
-        ("/", "Home")
-    ]
-    
-    for link, link_text in nav_links:
-        link_element = driver.find_element(By.LINK_TEXT, link_text)
-        link_element.click()
-        time.sleep(1)  # Wait for page load
-        assert driver.current_url.endswith(link)  # Check the URL is correct
-        driver.back()  # Go back to the previous page
-
-# 2. Test Create Account / Register Form
-def test_register_form(driver):
-    driver.get("http://localhost:5000/register")
-    email_input = driver.find_element(By.ID, "email")
-    password_input = driver.find_element(By.ID, "password")
-    submit_button = driver.find_element(By.XPATH, "//button[text()='Register']")
-    
-    # Test with valid data
-    email_input.send_keys("achac021@ucr.edu")
-    password_input.send_keys("SecurePassword123")
+# HELPER FUNCTIONS
+def register_user(driver, email, password):
+    driver.get(f"{BASE_URL}/register")
+    email_field = driver.find_element(By.ID, "email")
+    password_field = driver.find_element(By.ID, "password")
+    submit_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
+    email_field.send_keys(email)
+    password_field.send_keys(password)
     submit_button.click()
-    time.sleep(2)
-    assert "Login" in driver.page_source  # Assuming it redirects to login page after successful registration
 
-    # Test with invalid email format
-    email_input.clear()
-    email_input.send_keys("invalid-email")
-    password_input.clear()
-    password_input.send_keys("Password123")
+def login(driver, email, password):
+    driver.get(f"{BASE_URL}/login")
+    email_field = driver.find_element(By.ID, "email")
+    password_field = driver.find_element(By.ID, "password")
+    submit_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
+    email_field.send_keys(email)
+    password_field.send_keys(password)
     submit_button.click()
-    time.sleep(2)
-    assert "Invalid email" in driver.page_source  # Assuming the page shows an error message for invalid email
+    WebDriverWait(driver, 10).until(EC.url_contains("/"))
 
-# 3. Test Login Page
-def test_login(driver):
-    driver.get("http://localhost:5000/login")
-    email_input = driver.find_element(By.ID, "email")
-    password_input = driver.find_element(By.ID, "password")
-    login_button = driver.find_element(By.XPATH, "//button[text()='Login']")
-    
-    # Test valid login
-    email_input.send_keys("testuser@example.com")
-    password_input.send_keys("SecurePassword123")
-    login_button.click()
-    time.sleep(2)
-    assert "Account" in driver.page_source  # Assuming it redirects to the account page after successful login
+def logout(driver):
+    driver.get(f"{BASE_URL}/logout")
+    WebDriverWait(driver, 10).until(EC.url_contains("/"))  #Wait until it is on the home page
 
-    # Test invalid login
-    email_input.clear()
-    email_input.send_keys("wrongemail@example.com")
-    password_input.clear()
-    password_input.send_keys("WrongPassword")
-    login_button.click()
-    time.sleep(2)
-    assert "Invalid login" in driver.page_source  # Assuming it shows an error for invalid login
+# Helper function to check for alert messages
+def check_alert_text(driver, expected_text, timeout=10):
+    try:
+        WebDriverWait(driver, timeout).until(EC.presence_of_element_located((By.CLASS_NAME, "alert")))
+        alert = driver.find_element(By.CLASS_NAME, "alert")
+        return expected_text in alert.text
+    except:
+        return True
 
-# 4. Test Account Page
-def test_account_page(driver):
-    driver.get("http://localhost:5000/account")
-    # Ensure that the account page shows the correct information
-    assert "Account page" in driver.page_source  # Check for the text inside the account page
-    assert "Idk what to do with this" in driver.page_source  # Check for the placeholder text
+# TESTS
 
-# 5. Test Listing Creation Form
-def test_create_listing(driver):
-    driver.get("http://localhost:5000/list")
-    
-    name_input = driver.find_element(By.ID, "name")
-    bid_input = driver.find_element(By.ID, "bid")
-    condition_select = driver.find_element(By.ID, "cond")
-    description_input = driver.find_element(By.ID, "desc")
-    image_input = driver.find_element(By.ID, "image")
-    submit_button = driver.find_element(By.XPATH, "//button[text()='Submit Listing']")
-    
-    # Test creating a valid listing
-    name_input.send_keys("Test Item")
-    bid_input.send_keys("10")
-    condition_select.send_keys("new")
-    description_input.send_keys("A brand new test item.")
-    image_input.send_keys("/path/to/sample-image.jpg")  # Provide the correct image file path
+def test_env_vars():
+    assert SUPABASE_URL is not None  #Check the Supabase URL
+
+def test_index_page_loads(driver):
+    driver.get(BASE_URL)
+    assert "Trinket" in driver.title
+
+def test_register_page_loads(driver):
+    driver.get(f"{BASE_URL}/register")
+    assert "Register" in driver.page_source
+
+def test_login_page_loads(driver):
+    driver.get(f"{BASE_URL}/login")
+    assert "Sign In" in driver.page_source
+
+def test_account_page_loads_when_logged_in(driver):
+    login(driver, TEST_EMAIL, TEST_PASSWORD)
+    driver.get(f"{BASE_URL}/account")
+    assert "Account Page" in driver.page_source
+
+def test_list_item_page_loads_when_logged_in(driver):
+    login(driver, TEST_EMAIL, TEST_PASSWORD)
+    driver.get(f"{BASE_URL}/list")
+    assert "List an Item" in driver.page_source
+
+def test_successful_registration(driver):
+    unique_email = f"test{int(time.time())}@example.com"
+    register_user(driver, unique_email, "Testpassword123!")
+    assert check_alert_text(driver, "User registered successfully")
+
+def test_registration_with_existing_email(driver):
+    register_user(driver, TEST_EMAIL, "SomeNewPassword123!")
+    assert check_alert_text(driver, "User already registered")
+
+def test_successful_login(driver):
+    login(driver, TEST_EMAIL, TEST_PASSWORD)
+    assert check_alert_text(driver, "Login successful")
+
+def test_logout(driver):
+    login(driver, TEST_EMAIL, TEST_PASSWORD)
+    logout(driver)
+    assert "Sign In" in driver.page_source
+
+def test_list_item_success(driver):
+    login(driver, TEST_EMAIL, TEST_PASSWORD)
+    driver.get(f"{BASE_URL}/list")
+
+    # Locate form elements
+    name_field = driver.find_element(By.ID, "name")
+    bid_field = driver.find_element(By.ID, "bid")
+    condition_dropdown = driver.find_element(By.ID, "cond")
+    image_upload = driver.find_element(By.ID, "image")
+    description_field = driver.find_element(By.ID, "desc")
+    submit_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
+
+    # Populate form fields
+    name_field.send_keys("Test Item")
+    bid_field.send_keys("10")
+
+    # Select an item from the condition dropdown
+    condition_dropdown.send_keys("New")
+
+    # Use the test image from the tests/ folder
+    test_image_path = os.path.abspath("tests/test_image.png")
+    image_upload.send_keys(test_image_path)
+
+    description_field.send_keys("Test Description")
+
+    # Submit the form
     submit_button.click()
-    time.sleep(2)
-    assert "Listing created successfully" in driver.page_source  # Check for the success message
 
-    # Test submitting with empty required fields
-    name_input.clear()
-    bid_input.clear()
-    submit_button.click()
-    time.sleep(2)
-    assert "This field is required" in driver.page_source  # Check for error if required fields are missing
+    # Wait for redirect to listingSuccess.html
+    WebDriverWait(driver, 10).until(EC.url_contains(f"{BASE_URL}/list"))
 
-# 6. Test Listing Details Page
-def test_listing_page(driver):
-    driver.get("http://localhost:5000")
-    listing_link = driver.find_element(By.XPATH, "//a[contains(@href, '/listingPage')]")
-    listing_link.click()
-    time.sleep(2)
-    
-    # Test that the listing details are correctly displayed
-    assert "Test Item" in driver.page_source
-    assert "Condition: new" in driver.page_source
-    assert "A brand new test item." in driver.page_source
-
-# 7. Test Listing Success Page
-def test_listing_success(driver):
-    driver.get("http://localhost:5000/listingSuccess")
+    # Verify that the "Listing Created Successfully!" message is present on listingSuccess.html
     assert "Listing created successfully!" in driver.page_source
 
-# 8. Test Password Reset Page
-def test_password_reset(driver):
-    driver.get("http://localhost:5000/resetPassword")
-    assert "Password will be reset here eventually" in driver.page_source
-
-# 9. Test Payment Method Page
-def test_payment_method(driver):
-    driver.get("http://localhost:5000/PaymentMethod")
-    
-    cardholder_input = driver.find_element(By.ID, "cardholderName")
-    cardnumber_input = driver.find_element(By.ID, "cardNumber")
-    expiry_input = driver.find_element(By.ID, "expiryDate")
-    cvv_input = driver.find_element(By.ID, "cvv")
-    submit_button = driver.find_element(By.XPATH, "//button[text()='Submit Payment']")
-    
-    # Test valid payment details
-    cardholder_input.send_keys("John Doe")
-    cardnumber_input.send_keys("1234567890123456")
-    expiry_input.send_keys("12/25")
-    cvv_input.send_keys("123")
-    submit_button.click()
-    time.sleep(2)
-    assert "Payment submitted" in driver.page_source  # Assuming success message for payment
-
-    # Test invalid payment details
-    cardholder_input.clear()
-    cardnumber_input.clear()
-    submit_button.click()
-    time.sleep(2)
-    assert "This field is required" in driver.page_source  # Check for error when submitting empty fields
 

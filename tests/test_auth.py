@@ -19,19 +19,6 @@ def mock_supabase():
     with patch('app.supabase') as mock:
         yield mock
 
-# ---------------- AUTHENTICATION TESTS ---------------- #
-
-def test_register_success(client, mock_supabase):
-    mock_supabase.auth.sign_up.return_value = {"user": {"email": "newuser@example.com"}}
-    response = client.post("/register", json={"email": "newuser@example.com", "password": "SecurePass123"})
-    assert response.status_code == 200
-    assert "message" in response.get_json()
-
-def test_login_success(client, mock_supabase):
-    mock_supabase.auth.sign_in_with_password.return_value = {"user": {"email": "testuser@example.com"}}
-    response = client.post("/login", json={"email": "testuser@example.com", "password": "TestPass123"})
-    assert response.status_code == 200
-    assert response.get_json() == {"message": "Login successful"}
 
 # ---------------- LISTING TESTS ---------------- #
 

@@ -316,4 +316,4 @@ def run_scheduler():
 scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
 scheduler_thread.start()
 if __name__ == "__main__":
-    app.run(debug=debugging)
+    app.run(debug=True)
