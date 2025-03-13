@@ -4,10 +4,11 @@
 {% block head %}
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>{{ listing.name }}</title>
+<title>{{ listing.name }} - Trinket</title>
 {% endblock %}
 
 {% block body %}
+
 <div class="listing-page">
     <img src="{{ listing.imageURL }}" alt="Listing Image" width="300">
     <h1>{{ listing.name }}</h1>
@@ -27,5 +28,6 @@
         <button type="submit">Place Bid</button>
     </form>
     <a href="{{ url_for('index') }}">Back to Listings</a>
+
 </div>
 {% endblock %}

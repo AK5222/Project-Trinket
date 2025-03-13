@@ -4,6 +4,7 @@
 
 
 {% block head %}
+<title>Trinket</title>
 <script>
     //this shows an error but it works lol so fine i guess??
     let seconds_left = {{seconds_left}};
@@ -26,27 +27,29 @@
 {% endblock %}
 
 {% block body %}
-<main class="content">
-    <h1 class="h1">Listings</h1>
-    {% if currListings|length < 1 %}
-    <h4 class="h4">There are currently no live listings. Check back in:</h4>
-    <p id="timer"></p>
-    {% else %}
-
-    <div class="listings-container">
-        {% for item in currListings %}
-        <div class="listing">
-            <a href="{{ url_for('listingPage', listing_id=currListings[item].getId()) }}">
-                <img src="{{currListings[item].getURL()}}" alt="" border="2">
-                <p>{{currListings[item].getName()}}</p>
-                <p>Condition: {{currListings[item].getCondition()}}</p>
-                <p>Current Bid: {{currListings[item].getBid()}}</p>
-            </a>
-        </div>
-        {% endfor %}
-    </div>
+<main class="index-page">
     <div>
-        <h1>Time left to bid on this current batch:</h1>
+        {% if currListings|length < 1 %}
+        <h4 class="h4">There are currently no live listings. Check back in:</h4>
+        <p id="timer"></p>
+        {% else %}
+
+        <div class="listings-container">
+            {% for item in currListings %}
+            <div class="listing">
+                <a href="{{ url_for('listingPage', listing_id=currListings[item].getId()) }}">
+                    <img src="{{currListings[item].getURL()}}" alt="" border="2">
+                    <p>{{currListings[item].getName()}}</p>
+                    <p>Condition: {{currListings[item].getCondition()}}</p>
+                    <p>Current Bid: {{currListings[item].getBid()}}</p>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="index_timer">
+        <br>
+        <p>Time left to bid on this current batch:</p>
         <p id="timer"></p>
     </div>
 

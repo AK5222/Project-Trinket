@@ -1,15 +1,68 @@
-<!--Main page for the site. Will show listings, and will have buttons for account (maybe, if time) and login-->
 {% extends 'base.html' %}
 
 {% block head %}
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Account Page</title>
 {% endblock %}
 
 {% block body %}
-<main class="content">
-    <h1 class="h1">Account page</h1>
-    <div>
-        <h4 class="h4">Idk what to do with this until accounts are implemented so hopefully I get on that soon !</h4>
-    </div>
-</main>
+<div class="account-page">
+    <main class="account-container">
+        <h1 class="account-title">Account Page</h1>
+        <form class="account-form">
+
+            <div class="form-group">
+                <label for="first-name">First Name</label>
+                    <input type="text" id="first-name" name="first_name">
+            </div>
+
+            <div class="form-group">
+                <label for="last-name">Last Name</label>
+                <input type="text" id="last-name" name="last_name">
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" >
+            </div>
+
+            <div class="form-group">
+                <label>Date of Birth</label>
+                <div class="dob-fields">
+                    <input type="number" id="day" name="day" min="1" max="31" placeholder="DD" value="15">
+                    <select id="month" name="month">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <input type="number" id="year" name="year" min="1900" max="2025" placeholder="YYYY" value="1995">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <button type="submit" class="save-button">Save Changes</button>
+            </div>
+
+            <div class="form-group">
+                <label>Listings:</label>
+            </div>
+
+            <div class="form-group">
+                <label>Purchases:</label>
+            </div>
+
+        </form>
+    </main>
+</div>
 {% endblock %}
+

@@ -5,7 +5,8 @@ import supabase
 import schedule
 import threading
 from supabase import create_client, Client
-from flask import Flask, render_template, url_for, request, redirect, jsonify
+from flask import Flask, render_template, url_for, request, redirect, jsonify, session
+from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime, timedelta, timezone
@@ -25,8 +26,16 @@ supabase: Client = create_client(url, key)
 app = Flask(__name__)
 CORS(app)
 
-#place where listing images will be locally stored before being uploaded to supabase
+
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SECRET_KEY'] = os.getenv("SECRET_KEY", "supersecretkey")  # Keep it secure
+Session(app)
+
 app.config['IMAGES'] = 'images'
+
+@app.context_processor
+def inject_user():
+    return {"user_logged_in": 'user' in session}
 
 
 #global dict for transferring listings from supabase to flask to the webpage
@@ -75,7 +84,7 @@ def register():
 
 
 #login page
-@app.route("/login", methods=["GET","POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         data = request.json
@@ -84,70 +93,64 @@ def login():
 
         try:
             user = supabase.auth.sign_in_with_password({"email": email, "password": password})
-            return jsonify({"message": "Login successful"}), 200
+            if user:
+                session['user'] = user.user.id  # Store user ID in session
+                return jsonify({"message": "Login successful", "redirect": url_for('index')}), 200
         except Exception as e:
             return jsonify({"error": str(e)}), 400
-    else:
-        return render_template('login.html')
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    session.pop('user', None)  # Remove user from session
+    return redirect(url_for('index'))
 
 
 
 
-#page for listing a new item to be put up for bidding
 @app.route('/list', methods=['POST', 'GET'])
 def list():
-
-
-    #everything in the if statement is triggered once the "submit listing" button is pushed
     if request.method == 'POST':
-
-
-        #assign variables. We don't need to check if these are null since the html page checks
         name = request.form['name']
         bid = request.form['bid']
         condition = request.form['cond']
-        image = request.files['image']
-        
-        # Sends us to a function that handles uploading the listing to supabase. immediately change filename to listing id
-        response = createListing(name, bid, condition, request.form['desc'], image.filename)
+        image = request.files.get('image')  # Use get to avoid KeyError if image is not provided
 
-        # Make sure our image type is correct
+        if not image:
+            return jsonify({'error': 'No image provided'}), 400  # Ensure the response is always JSON
+
+        # Make sure image format is correct
         if image.content_type not in ['image/jpeg', 'image/png', 'image/jpg']:
             return jsonify({'error': 'Invalid image format'}), 400
 
+        # Process image and listing (the rest of your code)
+        response = createListing(name, bid, condition, request.form['desc'], image.filename)
 
-        #grab name of file
         image_data = secure_filename(image.filename)
-
-        #clean name of file since later lines replace the actual file's spaces in title with underscore
         image_filename = image.filename.replace(" ",'_')
 
-        #save image to a folder known to flask
         basedir = os.path.abspath(os.path.dirname(__file__))
         image.save(os.path.join(basedir, app.config['IMAGES'], image_data))
 
-        #convert the name of the image to the ID of its listing
         image_name = str(response.data[0]['id'])
-        image_path_raw='./images/'+image_filename
-        image_path_new = './images/'+str(image_name)
+        image_path_raw = './images/' + image_filename
+        image_path_new = './images/' + str(image_name)
         os.rename(image_path_raw, image_path_new)
 
-        #now that we have the image in a location we know, we can send the image to supabase
         try:
-            supabase.storage.from_('images').upload(file = image_path_new, path=image_name, file_options={'content-type':'image/*','cache-control':'3600','upsert':'false'},)
+            supabase.storage.from_('images').upload(file=image_path_new, path=image_name, file_options={'content-type': 'image/*', 'cache-control': '3600', 'upsert': 'false'})
         except Exception as e:
             print(f"Error occurred: {e}")
             supabase.table('Listings').select('image').lte('created_at', target_time.isoformat()).execute()
             supabase.delete().eq("id", image_name).execute()
-        
-        #we no longer need to store the image locally - delete it
+
         os.remove(image_path_new)
 
-        #send user to a page that informs them that the listing was created successfully
         return render_template('listingSuccess.html')
     
-    #if something goes wrong and isnt caught by one of the excepts, send us back to list.html - we should never reach this
     return render_template('list.html')
+
+
 
 
 #This page shows more information about a listing, and will give users the option to bid on them
@@ -351,7 +354,8 @@ def timeLeft():
     return seconds_left
 
 
-#change this for when we are not debugging
+#When debugging is set to true, the site will grab new listings every minute and will not remove old listings. When it is set to false,
+#the site grabs new listings every 30 minutes and deletes all old listings within the Listings db.
 debugging = True
 
 
@@ -374,4 +378,4 @@ def run_scheduler():
 scheduler_thread = threading.Thread(target=run_scheduler, daemon=True)
 scheduler_thread.start()
 if __name__ == "__main__":
-    app.run(debug=debugging)
+    app.run(debug=True)
