@@ -1,17 +1,58 @@
 <!--Main page for the site. Will show listings, and will have buttons for account (maybe, if time) and login-->
 {% extends 'base.html' %}
 
-{% block head %}
 
+
+{% block head %}
+<title>Trinket</title>
+<script>
+    //this shows an error but it works lol so fine i guess??
+    let seconds_left = {{seconds_left}};
+
+    function updateTimer() {
+        let minutes = Math.floor(seconds_left / 60);
+        let seconds = seconds_left % 60 - 1;
+        let formattedSeconds = seconds.toString().padStart(2, '0');
+
+        document.getElementById('timer').innerText = `${minutes}:${formattedSeconds}`;
+
+
+        if (seconds_left > 0) {
+            seconds_left--;
+        }
+    }
+
+    setInterval(updateTimer, 1000);
+</script>
 {% endblock %}
 
 {% block body %}
-<main class="content">
-    <h1 class="h1">Listings</h1>
-    {% if tasks|length < 1 %}
-    <h4 class="h4">There are currently no live listings. Check back soon!</h4>
-    {% else %}
-    <h4>Listings found!</h4>
+<main class="index-page">
+    <div>
+        {% if currListings|length < 1 %}
+        <h4 class="h4">There are currently no live listings. Check back in:</h4>
+        <p id="timer"></p>
+        {% else %}
+
+        <div class="listings-container">
+            {% for item in currListings %}
+            <div class="listing">
+                <a href="{{ url_for('listingPage', listing_id=currListings[item].getId()) }}">
+                    <img src="{{currListings[item].getURL()}}" alt="" border="2">
+                    <p>{{currListings[item].getName()}}</p>
+                    <p>Condition: {{currListings[item].getCondition()}}</p>
+                    <p>Current Bid: {{currListings[item].getBid()}}</p>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="index_timer">
+        <br>
+        <p>Time left to bid on this current batch:</p>
+        <p id="timer"></p>
+    </div>
+
     {% endif %}
 </main>
 {% endblock %}
