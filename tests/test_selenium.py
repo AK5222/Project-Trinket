@@ -13,7 +13,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Constants - Replace with your actual app URL and credentials
 BASE_URL = "http://127.0.0.1:5000"  # Default Flask URL. Change if different.
 TEST_EMAIL = "test@example.com"  # Replace with your test email. Ensure this user exists.
 TEST_PASSWORD = "testpassword"  # Replace with your test password
@@ -21,8 +20,6 @@ TEST_PASSWORD = "testpassword"  # Replace with your test password
 # Supabase URL
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 
-# Base64 encoded 1x1 pixel transparent GIF
-TRANSPARENT_GIF_BASE64 = "R0lGODlhAQABAIAAAP///////yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
 
 @pytest.fixture(scope="module")
 def driver():
@@ -123,7 +120,7 @@ def test_list_item_success(driver):
     description_field = driver.find_element(By.ID, "desc")
     submit_button = driver.find_element(By.CSS_SELECTOR, "button[type='submit']")
 
-    # Populate form fields
+    
     name_field.send_keys("Test Item")
     bid_field.send_keys("10")
 
