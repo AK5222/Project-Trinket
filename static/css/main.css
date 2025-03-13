@@ -164,6 +164,7 @@ body {
 }
 
 .list-container {
+    text-align: center;
     background-color: #ffffff;
     border-radius: 10px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -373,3 +374,85 @@ span.psw {
 }
 
 */
+
+.listings-container {
+    display: flex;
+    justify-content: center; /* Centers the listings horizontally */
+    align-items: flex-end;
+    gap: 50px; /* Adds spacing between listings */
+    flex-wrap: wrap; /* Ensures responsiveness */
+}
+
+.listing {
+    text-align: center; /* Centers text within each listing */
+    max-width: 200px; /* Adjust width as needed */
+}
+
+.listing img {
+    width: 100%; /* Makes the image responsive */
+    height: auto;
+    border-radius: 20px; /* Optional styling */
+}
+
+.listing a {
+    text-decoration: none;
+    color: black;
+}
+
+
+.item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+    font-family: 'Arial', sans-serif;
+    text-align: center;
+    margin: 0;
+}
+
+.itemContainer {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 90%;
+}
+
+h6 {
+    font-size: 28px;
+    color: #333;
+}
+
+p {
+    font-size: 18px;
+    color: #666;
+}
+
+.a1 {
+    display: inline-block;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    background-color: #007bff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: background 0.3s ease;
+}
+
+a:hover {
+    background-color: #0056b3;
+}
+
+.list-page {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f9fafb;
+}
+
+.index_timer {
+    text-align: center;
+}
