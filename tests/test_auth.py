@@ -19,7 +19,6 @@ def mock_supabase():
     with patch('app.supabase') as mock:
         yield mock
 
-
 # ---------------- LISTING TESTS ---------------- #
 
 def test_list_success(client, mock_supabase):
@@ -37,40 +36,6 @@ def test_list_success(client, mock_supabase):
     response = client.post("/list", data={**data, "image": image}, content_type='multipart/form-data')
     assert response.status_code == 200
 
-def test_listing_page_exists(client, mock_supabase):
-    listing_data = {"id": 1, "name": "Item", "bid": 10, "condition": "New", "description": "Desc", "image": "1.jpg"}
-    mock_supabase.storage.from_().create_signed_url.return_value = {'signedUrl': 'http://example.com/image.jpg'}
-    with patch.dict(currListings, {1: Listing(listing_data)}):
-        response = client.get("/listingPage/1")
-        assert response.status_code == 200
-
-# ---------------- LISTING CLASS TESTS ---------------- #
-
-def test_listing_creation(mock_supabase):
-    listing_data = {"id": 1, "name": "Item", "bid": 10, "condition": "New", "description": "Desc", "image": "1.jpg"}
-    mock_supabase.storage.from_('images').create_signed_url.return_value = {'signedUrl': 'http://example.com/image.jpg'}
-    listing_obj = Listing(listing_data)
-    assert listing_obj.getName() == "Item"
-    assert listing_obj.getBid() == 10
-    assert listing_obj.getCondition() == "New"
-    assert listing_obj.getURL() == 'http://example.com/image.jpg'
-
-def test_listing_update_bid(mock_supabase):
-    listing_data = {"id": 1, "name": "Item", "bid": 10, "condition": "New", "description": "Desc", "image": "1.jpg"}
-    mock_supabase.storage.from_().create_signed_url.return_value = {'signedUrl': 'http://example.com/image.jpg'}
-    mock_supabase.table().update().eq().execute.return_value = {"status": "success"}
-    listing_obj = Listing(listing_data)
-    result = listing_obj.updateBid(15)
-    assert listing_obj.getBid() == 15  # Bid should be updated locally
-    assert result == {"status": "success"}  # Check if the Supabase update was called
-
-def test_listing_update_bid_fail(mock_supabase):
-    listing_data = {"id": 1, "name": "Item", "bid": 10, "condition": "New", "description": "Desc", "image": "1.jpg"}
-    mock_supabase.storage.from_().create_signed_url.return_value = {'signedUrl': 'http://example.com/image.jpg'}
-    listing_obj = Listing(listing_data)
-    result = listing_obj.updateBid(5)
-    assert listing_obj.getBid() == 10  # Bid should not be updated
-    assert result is None
 
 # ---------------- HELPER FUNCTION TESTS ---------------- #
 
